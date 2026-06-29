@@ -265,12 +265,12 @@ if(localStorage.getItem("s_auth")==="ok"){document.addEventListener("DOMContentL
     <div class="ni" onclick="nav('sc',this)"><span class="ni-i">🔍</span><span class="ni-t">Screener</span><span class="ni-b v" id="nb-sc">--</span></div>
     <div class="ng">System</div>
     <div class="ni" onclick="nav('wa',this)"><span class="ni-i">📱</span><span class="ni-t">WhatsApp Signal</span></div>
-    <div class="ni" onclick="nav('rules',this)"><span class="ni-i">📋</span><span class="ni-t">Rules & Framework</span></div>
-    <div class="ni" onclick="nav('setup',this)"><span class="ni-i">⚙️</span><span class="ni-t">Google Sheet Setup</span></div>
+    <div class="ni admin-only" onclick="nav('rules',this)" style="display:none"><span class="ni-i">📋</span><span class="ni-t">Rules & Framework</span></div>
+    <div class="ni admin-only" onclick="nav('setup',this)" style="display:none"><span class="ni-i">⚙️</span><span class="ni-t">Google Sheet Setup</span></div>
   </div>
   <div class="sb-ft">
     <div class="sdot-row"><div class="sdot off" id="sdot"></div><span id="stxt">Loading...</span></div>
-    <div class="sbtn-row">
+    <div style="margin-bottom:5px"><button onclick="toggleAdmin()" id="admin-btn" style="width:100%;background:var(--dim);border:1px solid var(--border);color:var(--sub);font-size:9px;font-weight:700;padding:4px 0;border-radius:3px;cursor:pointer">🔒 Admin Login</button></div><div class="sbtn-row">
       <div class="sbtn" onclick="doRefresh()">↻ Prices</div>
       <div class="sbtn s" onclick="nav('sc',document.querySelectorAll('.ni')[8])">Import</div>
     </div>
@@ -297,8 +297,8 @@ if(localStorage.getItem("s_auth")==="ok"){document.addEventListener("DOMContentL
     <div class="mob-ni" onclick="mobNav('sc')">🔍 Screener</div>
     <div style="font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--sub);padding:8px 14px 3px">System</div>
     <div class="mob-ni" onclick="mobNav('wa')">📱 WhatsApp Signal</div>
-    <div class="mob-ni" onclick="mobNav('rules')">📋 Rules & Framework</div>
-    <div class="mob-ni" onclick="mobNav('setup')">⚙️ Google Sheet Setup</div>
+    <div class="mob-ni admin-only" onclick="mobNav('rules')" style="display:none">📋 Rules & Framework</div>
+    <div class="mob-ni admin-only" onclick="mobNav('setup')" style="display:none">⚙️ Google Sheet Setup</div>
   </div>
 </div>
 
@@ -1102,6 +1102,42 @@ function closeMobNav(){document.getElementById("mob-overlay").style.display="non
 // == UTILS ==
 function showNote(id,type,msg){var el=document.getElementById(id);if(!el)return;el.className="note "+type;el.textContent=msg;setTimeout(function(){el.className="note";},5000);}
 setInterval(function(){document.getElementById("clk").textContent=new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+" IST";},30000);
+
+
+// == ADMIN ==
+var ADMIN_PWD = "Surya@120886";
+var IS_ADMIN = localStorage.getItem("s_admin") === "ok";
+
+function toggleAdmin(){
+  if(IS_ADMIN){
+    // Logout
+    IS_ADMIN = false;
+    localStorage.removeItem("s_admin");
+    document.querySelectorAll(".admin-only").forEach(function(el){el.style.display="none";});
+    document.getElementById("admin-btn").textContent = "🔒 Admin Login";
+    document.getElementById("admin-btn").style.color = "var(--sub)";
+  } else {
+    var pwd = prompt("Enter admin password:");
+    if(pwd === ADMIN_PWD){
+      IS_ADMIN = true;
+      localStorage.setItem("s_admin","ok");
+      document.querySelectorAll(".admin-only").forEach(function(el){el.style.display="";});
+      document.getElementById("admin-btn").textContent = "🔓 Admin (You)";
+      document.getElementById("admin-btn").style.color = "var(--gold2)";
+    } else if(pwd !== null){
+      alert("Wrong password");
+    }
+  }
+}
+
+// Check admin on load
+if(IS_ADMIN){
+  document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll(".admin-only").forEach(function(el){el.style.display="";});
+    var btn = document.getElementById("admin-btn");
+    if(btn){btn.textContent="🔓 Admin (You)";btn.style.color="var(--gold2)";}
+  });
+}
 
 // == INIT ==
 try{renderAll();}catch(e){console.error("Init error:",e);}
